@@ -31,6 +31,7 @@ static uint32_t HAL_RCC_CAN1_CLK_ENABLED=0;
 
 #ifdef HCAN1
     extern CAN_HandleTypeDef hcan1;
+    extern can_message_s CANMessageBuffer1[CAN_RX_BUFF_SIZE];
     CanTxMsgTypeDef            TxM_1;
     CanRxMsgTypeDef            RxM_1;
     CAN_FilterConfTypeDef      sFilterConfig_1;
@@ -44,13 +45,16 @@ static uint32_t HAL_RCC_CAN1_CLK_ENABLED=0;
 #endif // HCAN2
 
 
+    static volatile uint8_t CAN1_Com_cplt = 1;
+    static volatile uint8_t CAN2_Com_cplt = 1;
+
 //****************************************Function Prototypes******************************// 
     void can_hal_init_pin(GPIO_TypeDef* GPIOx, uint16_t gpio_pin, uint8_t gpio_af);
     void can_hal_init_periph(CAN_HandleTypeDef* can_handle);
     void can_hal_set_interrupt(CAN_HandleTypeDef* can_handle);
 
-    __weak void CAN1_RX_Handler(void);
-    __weak void CAN2_RX_Handler(void);
+    __weak void CAN1_RX_Handler(CAN_HandleTypeDef* can_handle);
+    __weak void CAN2_RX_Handler(CAN_HandleTypeDef* can_handle);
 
 //****************************************Local Function***********************************// 
     void can_hal_init_pin(GPIO_TypeDef* GPIOx, uint16_t gpio_pin, uint8_t gpio_af)
@@ -242,27 +246,26 @@ static uint32_t HAL_RCC_CAN1_CLK_ENABLED=0;
 
         for (int i=0; i<dlc;i++)
         {
-            can_handle->pTxMsg->Data[0] = data[i];
+            can_handle->pTxMsg->Data[i] = data[i];
         }
 
-        HAL_CAN_Transmit(can_handle,1);       
-
+        if (can_handle->Instance == CAN1)
+        {
+            CAN1_Com_cplt = 0;
+        }
+        else if (can_handle->Instance == CAN2)
+        {
+            CAN2_Com_cplt = 0;
+        }
+        HAL_CAN_Transmit(can_handle,1);
     }
 
     void can_hal_set_baudrate(CAN_HandleTypeDef* can_handle, uint32_t baudrate)
     {
-        if (can_handle->Instance == CAN1)
-        {
-            can_handle->Init.Mode = CAN_MODE_NORMAL;
-        }
-        else if (can_handle->Instance == CAN2)
-        {
-            can_handle->Init.Mode = CAN_MODE_NORMAL;
-        }
-        
+        can_handle->Init.Mode = CAN_MODE_NORMAL;
         can_handle->Init.Prescaler = baudrate;
-        can_handle->Init.BS1 = CAN_BS1_14TQ;
-        can_handle->Init.BS2 = CAN_BS2_5TQ;
+        can_handle->Init.BS1 = CAN_BS1_16TQ;
+        can_handle->Init.BS2 = CAN_BS2_4TQ;
         can_handle->Init.SJW = CAN_SJW_1TQ;
 
         can_handle->Init.TTCM = DISABLE;
@@ -283,7 +286,7 @@ static uint32_t HAL_RCC_CAN1_CLK_ENABLED=0;
     void CAN1_RX0_IRQHandler(void)
     {
         HAL_CAN_IRQHandler(&hcan1);
-        CAN1_RX_Handler();
+        CAN1_RX_Handler(&hcan1);
         HAL_CAN_Receive_IT(&hcan1, CAN_FIFO0);
     }     
 #endif // HCAN1
@@ -292,16 +295,16 @@ static uint32_t HAL_RCC_CAN1_CLK_ENABLED=0;
     void CAN2_RX0_IRQHandler(void)
     {
         HAL_CAN_IRQHandler(&hcan2);
-        CAN2_RX_Handler();
+        CAN2_RX_Handler(&hcan2);
         HAL_CAN_Receive_IT(&hcan2, CAN_FIFO0);
     }     
 #endif // HCAN2
 
     // Weak reference to CAN1 Receive Interrupt handler
-    __weak void CAN1_RX_Handler(void) {}
+    __weak void CAN1_RX_Handler(CAN_HandleTypeDef* can_handle) {}
 
     // Weak reference to CAN1 Receive Interrupt handler
-    __weak void CAN2_RX_Handler(void) {}
+    __weak void CAN2_RX_Handler(CAN_HandleTypeDef* can_handle) {}
 
 
 #ifdef __cplusplus
