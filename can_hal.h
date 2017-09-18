@@ -15,6 +15,9 @@ extern "C" {
 //****************************************INCLUDE******************************************// 
 #include <stm32f4xx_hal.h>
 //****************************************DEFINES******************************************//
+// CAN RX Buffer size
+#define CAN_RX_BUFF_SIZE 16
+
 // CAN Baudrate Table
 // Configured for a APB1 Clock of 42 Mhz
 #define CAN_1000KBPS 2
@@ -50,6 +53,16 @@ extern "C" {
         uint8_t Alt_Func;
         CAN_TypeDef* Instance;
     } can_periph;
+
+    typedef struct
+    {
+        uint32_t ID;
+        uint32_t EXTID;
+        uint8_t DLC;
+        uint8_t Data[8];
+        uint8_t IDType;
+        uint8_t Lane;
+    } can_message_s;
 //****************************************Global Constants*********************************// 
     extern const can_periph CAN_PERIPHS[NB_OF_CAN_PERIPH_ENTRY];
 //****************************************Global Variables*********************************// 
