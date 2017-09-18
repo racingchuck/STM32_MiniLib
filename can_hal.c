@@ -7,8 +7,8 @@ Creation date : 07/08/2017
 ****************************************/
 
 //****************************************INCLUDE******************************************// 
-
 #include "can_hal.h"
+#include "circbuffer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,8 +17,6 @@ extern "C" {
 //****************************************DEFINES******************************************// 
 #define HCAN1
 #define HCAN2
-
-
 //****************************************Global Constants*********************************// 
     const can_periph CAN_PERIPHS[NB_OF_CAN_PERIPH_ENTRY] =
     {
@@ -27,7 +25,7 @@ extern "C" {
 #undef X_XTABLE
     };
 //****************************************Global Variables*********************************// 
-static uint32_t HAL_RCC_CAN1_CLK_ENABLED=0;
+    static uint32_t HAL_RCC_CAN1_CLK_ENABLED = 0;
 
 #ifdef HCAN1
     extern CAN_HandleTypeDef hcan1;
@@ -43,7 +41,6 @@ static uint32_t HAL_RCC_CAN1_CLK_ENABLED=0;
     CanRxMsgTypeDef            RxM_2;
     CAN_FilterConfTypeDef      sFilterConfig_2;
 #endif // HCAN2
-
 
     static volatile uint8_t CAN1_Com_cplt = 1;
     static volatile uint8_t CAN2_Com_cplt = 1;
@@ -109,7 +106,7 @@ static uint32_t HAL_RCC_CAN1_CLK_ENABLED=0;
             __HAL_RCC_CAN2_CLK_ENABLE();
 
             // If CAN1 clock not enabled enable it
-            if(HAL_RCC_CAN1_CLK_ENABLED==1)
+            if (HAL_RCC_CAN1_CLK_ENABLED == 1)
             {
                 __HAL_RCC_CAN1_CLK_ENABLE();
             }
@@ -237,27 +234,48 @@ static uint32_t HAL_RCC_CAN1_CLK_ENABLED=0;
 
     }
 
-    void can_hal_tx_msg(CAN_HandleTypeDef* can_handle, uint32_t id, uint8_t data[], uint8_t dlc)
+    void can_hal_tx_msg(CAN_HandleTypeDef* can_handle, sCircularBuffer *buffer)
     {
+    /*
         can_handle->pTxMsg->StdId = id;
         can_handle->pTxMsg->RTR = CAN_RTR_DATA;
         can_handle->pTxMsg->IDE = CAN_ID_STD;
         can_handle->pTxMsg->DLC = dlc;
 
-        for (int i=0; i<dlc;i++)
+        for (int i = 0; i < dlc; i++)
         {
             can_handle->pTxMsg->Data[i] = data[i];
         }
+        */
+        can_message_s tmp_msg;
 
-        if (can_handle->Instance == CAN1)
+        if ((can_handle->State == HAL_CAN_STATE_BUSY_RX0) || (can_handle->State ==  HAL_CAN_STATE_BUSY_RX1) || (can_handle->State == HAL_CAN_STATE_BUSY_RX0_RX1))
         {
-            CAN1_Com_cplt = 0;
+            CB_CAN_Read(buffer, &tmp_msg);
+
+            can_handle->pTxMsg->StdId = tmp_msg.ID;
+            can_handle->pTxMsg->RTR = CAN_RTR_DATA;
+            can_handle->pTxMsg->IDE = CAN_ID_STD;
+            can_handle->pTxMsg->DLC = tmp_msg.DLC;
+
+            for (int i = 0; i < tmp_msg.DLC; i++)
+            {
+                can_handle->pTxMsg->Data[i] = tmp_msg.Data[i];
+            }
+            if (can_handle->Instance == CAN1)
+            {
+                CAN1_Com_cplt = 0;
+            }
+            else if (can_handle->Instance == CAN2)
+            {
+                CAN2_Com_cplt = 0;
+            }
+
+            while (HAL_CAN_Transmit_IT(can_handle) != HAL_OK)
+            {
+            
+            }
         }
-        else if (can_handle->Instance == CAN2)
-        {
-            CAN2_Com_cplt = 0;
-        }
-        HAL_CAN_Transmit(can_handle,1);
     }
 
     void can_hal_set_baudrate(CAN_HandleTypeDef* can_handle, uint32_t baudrate)
@@ -269,16 +287,14 @@ static uint32_t HAL_RCC_CAN1_CLK_ENABLED=0;
         can_handle->Init.SJW = CAN_SJW_1TQ;
 
         can_handle->Init.TTCM = DISABLE;
-        can_handle->Init.ABOM = DISABLE;
+        can_handle->Init.ABOM = ENABLE;
         can_handle->Init.AWUM = DISABLE;
         can_handle->Init.NART = DISABLE;
         can_handle->Init.RFLM = DISABLE;
         can_handle->Init.TXFP = DISABLE;
 
-        if (HAL_CAN_Init(can_handle) != HAL_OK)
+        while (HAL_CAN_Init(can_handle) != HAL_OK)
         {
-            while (1)
-                ;
         }
     }
 //****************************************Interrupts Handler*******************************// 
@@ -303,7 +319,7 @@ static uint32_t HAL_RCC_CAN1_CLK_ENABLED=0;
     // Weak reference to CAN1 Receive Interrupt handler
     __weak void CAN1_RX_Handler(CAN_HandleTypeDef* can_handle) {}
 
-    // Weak reference to CAN1 Receive Interrupt handler
+        // Weak reference to CAN1 Receive Interrupt handler
     __weak void CAN2_RX_Handler(CAN_HandleTypeDef* can_handle) {}
 
 

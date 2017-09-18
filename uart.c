@@ -13,7 +13,7 @@ Creation date : 05/04/2017
 extern "C" {
 #endif
 //****************************************DEFINES******************************************// 
-#define HUART2
+#define HUART1
 //****************************************Global Constants*********************************// 
     const uart_periph UART_PERIPHS[NB_OF_UART_PERIPH_ENTRY] =
     {
@@ -173,6 +173,14 @@ extern "C" {
     {
         HAL_UART_Receive_IT(uart_handle, receive_buffer, RX_BUFF_SIZE);
     }
+
+    void uart_send(UART_HandleTypeDef* uart_handle, uint8_t data[], uint8_t size)
+    {
+        while (HAL_UART_Transmit_IT(uart_handle, data, size) != HAL_OK)
+        {
+            
+        }
+    }
 //****************************************Interrupts Handler*******************************// 
 
 #ifdef HUART1
@@ -187,6 +195,7 @@ extern "C" {
     void USART2_IRQHandler(void)
     {
         HAL_UART_IRQHandler(&huart2);
+        HAL_UART_Receive_IT(&huart2, (uint8_t *)receiveBuffer2, RX_BUFF_SIZE);
     }			  
 #endif // HUART2
 
@@ -202,22 +211,22 @@ extern "C" {
 
     void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) 
     {
-            if (huart->Instance == USART1)
-            {
-                USART1_RX_Handler();
-            }
-            else if (huart->Instance == USART2)
-            {
-                USART2_RX_Handler();
-            }
-            else if (huart->Instance == USART3)
-            {
-                USART3_RX_Handler();
-            }
-            else if (huart->Instance == USART6)
-            {
-                USART6_RX_Handler();
-            }            
+        if (huart->Instance == USART1)
+        {
+            USART1_RX_Handler();
+        }
+        else if (huart->Instance == USART2)
+        {
+            USART2_RX_Handler();
+        }
+        else if (huart->Instance == USART3)
+        {
+            USART3_RX_Handler();
+        }
+        else if (huart->Instance == USART6)
+        {
+            USART6_RX_Handler();
+        }            
     }
 
 #ifdef HUART1

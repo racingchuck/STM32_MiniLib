@@ -9,9 +9,9 @@ Creation date : 05/04/2017
 #ifndef __UART_H
 #define __UART_H
 //****************************************INCLUDE******************************************// 
-#include <stm32f407xx.h>
 #include <stm32f4xx_hal.h>
-
+#include <stdbool.h>
+#include "helpers.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,32 +30,33 @@ extern "C" {
         X_XTABLE(   USART3_3,       GPIOC,          GPIO_PIN_10,    GPIOC,          GPIO_PIN_11,    GPIO_AF7_USART3,    USART3) \
         X_XTABLE(   USART6_1,       GPIOC,          GPIO_PIN_6,     GPIOC,          GPIO_PIN_7,	    GPIO_AF8_USART6,    USART6) \
 
-typedef enum uart_periph_names_e
-{
+    typedef enum uart_periph_names_e
+    {
 #define X_XTABLE(NAME, TX_PORT, TX_PIN, RX_PORT, RX_PIN, AF, INSTANCE) NAME,
-    X_UART_CROSSTABLE							
+        X_UART_CROSSTABLE							
 #undef X_XTABLE
-        NB_OF_UART_PERIPH_ENTRY,
-} uart_periph_names_e;
+                NB_OF_UART_PERIPH_ENTRY,
+    } uart_periph_names_e;
 
-typedef struct
-{
-    uart_periph_names_e Name;
-    GPIO_TypeDef* TX_Port;
-    uint16_t TX_Pin;
-    GPIO_TypeDef* RX_Port;
-    uint16_t RX_Pin;
-    uint8_t Alt_Func;
-    USART_TypeDef* Instance;
-} uart_periph;
+    typedef struct
+    {
+        uart_periph_names_e Name;
+        GPIO_TypeDef* TX_Port;
+        uint16_t TX_Pin;
+        GPIO_TypeDef* RX_Port;
+        uint16_t RX_Pin;
+        uint8_t Alt_Func;
+        USART_TypeDef* Instance;
+    } uart_periph;
 
-//****************************************Global Constants*********************************// 
-extern const uart_periph UART_PERIPHS[NB_OF_UART_PERIPH_ENTRY];
-//****************************************Global Variables*********************************// 
+    //****************************************Global Constants*********************************// 
+    extern const uart_periph UART_PERIPHS[NB_OF_UART_PERIPH_ENTRY];
+    //****************************************Global Variables*********************************// 
 
 //****************************************Global Function Prototype************************// 
     void uart_init(uart_periph uart, UART_HandleTypeDef* uart_handle);
     void uart_set_receive_interrupt(uart_periph uart, UART_HandleTypeDef* uart_handle, uint8_t* receive_buffer);
+    void uart_send(UART_HandleTypeDef* uart_handle, uint8_t data[], uint8_t size);
 
 
 #ifdef __cplusplus
