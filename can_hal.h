@@ -5,7 +5,6 @@ Author        : Charles Ratelle
 Creation date : 07/08/2017
 
 ****************************************/
-
 #ifndef __CAN_HAL_H
 #define __CAN_HAL_H
 
@@ -15,8 +14,11 @@ extern "C" {
 //****************************************INCLUDE******************************************// 
 #include <stm32f4xx_hal.h>
 //****************************************DEFINES******************************************//
+
+    struct sCircularBufferCAN;
 // CAN RX Buffer size
-#define CAN_RX_BUFF_SIZE 16
+#define CAN_RX_BUFF_SIZE 32
+#define CAN_TX_BUFF_SIZE 16
 
 // CAN Baudrate Table
 // Configured for a APB1 Clock of 42 Mhz
@@ -29,9 +31,9 @@ extern "C" {
 // CAN Configuration table
 //				    Name          Tx Port   Tx Pin          Rx Port   Rx Pin          Alt func       Instance
 #define X_CAN_CROSSTABLE 	\
+		X_XTABLE(   CAN1_1,       GPIOB,    GPIO_PIN_9,     GPIOB,    GPIO_PIN_8,     GPIO_AF9_CAN1, CAN1) \
         X_XTABLE(   CAN1_2,       GPIOA,    GPIO_PIN_12,    GPIOA,    GPIO_PIN_11,    GPIO_AF9_CAN1, CAN1) \
         X_XTABLE(   CAN1_3,       GPIOD,    GPIO_PIN_1,     GPIOD,    GPIO_PIN_0,     GPIO_AF9_CAN1, CAN1) \
-		X_XTABLE(   CAN1_1,       GPIOB,    GPIO_PIN_9,     GPIOB,    GPIO_PIN_8,     GPIO_AF9_CAN1, CAN1) \
         X_XTABLE(   CAN2_1,       GPIOB,    GPIO_PIN_5,     GPIOB,    GPIO_PIN_6,     GPIO_AF9_CAN2, CAN2) \
         X_XTABLE(   CAN2_2,       GPIOB,    GPIO_PIN_13,    GPIOB,    GPIO_PIN_12,    GPIO_AF9_CAN2, CAN2) \
 
@@ -54,7 +56,7 @@ extern "C" {
         CAN_TypeDef* Instance;
     } can_periph;
 
-    typedef struct
+    typedef struct can_message_s
     {
         uint32_t ID;
         uint32_t EXTID;
@@ -63,6 +65,7 @@ extern "C" {
         uint8_t IDType;
         uint8_t Lane;
     } can_message_s;
+
 //****************************************Global Constants*********************************// 
     extern const can_periph CAN_PERIPHS[NB_OF_CAN_PERIPH_ENTRY];
 //****************************************Global Variables*********************************// 
@@ -71,11 +74,11 @@ extern "C" {
     void can_hal_init(can_periph can, CAN_HandleTypeDef* can_handle);
     void can_hal_set_filter_id(CAN_HandleTypeDef* can_handle, uint16_t id);
     void can_hal_set_filter_mask(CAN_HandleTypeDef* can_handle, uint32_t filter_mask, uint32_t filter_id);
-    void can_hal_tx_msg(CAN_HandleTypeDef* can_handle, uint32_t id, uint8_t data[], uint8_t dlc);
+    void can_hal_tx_msg(CAN_HandleTypeDef* can_handle, struct sCircularBufferCAN *buffer);
+    //void can_hal_tx_msg(CAN_HandleTypeDef* can_handle, uint32_t id, uint8_t data[], uint8_t dlc);
     void can_hal_set_baudrate(CAN_HandleTypeDef* can_handle, uint32_t baudrate);
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif // __CAN_HAL_H
