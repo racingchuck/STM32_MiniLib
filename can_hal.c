@@ -9,14 +9,13 @@ Creation date : 07/08/2017
 //****************************************INCLUDE******************************************// 
 #include "can_hal.h"
 #include "circbuffer.h"
+#include "nOS.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 //****************************************DEFINES******************************************// 
-#define HCAN1
-#define HCAN2
 //****************************************Global Constants*********************************// 
     const can_periph CAN_PERIPHS[NB_OF_CAN_PERIPH_ENTRY] =
     {
@@ -29,7 +28,6 @@ extern "C" {
 
 #ifdef HCAN1
     extern CAN_HandleTypeDef hcan1;
-    extern can_message_s CANMessageBuffer1[CAN_RX_BUFF_SIZE];
     CanTxMsgTypeDef            TxM_1;
     CanRxMsgTypeDef            RxM_1;
     CAN_FilterConfTypeDef      sFilterConfig_1;
@@ -94,10 +92,10 @@ extern "C" {
     {
         if (can_handle->Instance == CAN1)
         {
-            HAL_RCC_CAN1_CLK_ENABLED++;
-            if (HAL_RCC_CAN1_CLK_ENABLED == 1)
+            if (HAL_RCC_CAN1_CLK_ENABLED == 0)
             {
                 __HAL_RCC_CAN1_CLK_ENABLE();
+                HAL_RCC_CAN1_CLK_ENABLED++;
             }
             ;
         }
@@ -106,9 +104,10 @@ extern "C" {
             __HAL_RCC_CAN2_CLK_ENABLE();
 
             // If CAN1 clock not enabled enable it
-            if (HAL_RCC_CAN1_CLK_ENABLED == 1)
+            if (HAL_RCC_CAN1_CLK_ENABLED == 0)
             {
                 __HAL_RCC_CAN1_CLK_ENABLE();
+                HAL_RCC_CAN1_CLK_ENABLED++;
             }
         }
     }
@@ -139,7 +138,7 @@ extern "C" {
 
         can_hal_set_interrupt(can_handle);
 
-        can_hal_set_baudrate(can_handle, CAN_125KBPS);
+        can_hal_set_baudrate(can_handle, CAN_1000KBPS);
 
         if (HAL_CAN_Init(can_handle) != HAL_OK)
         {
@@ -154,6 +153,10 @@ extern "C" {
 
         if (can_handle->Instance == CAN1)
         {
+#ifdef HCAN1
+            
+
+
             can_handle->pTxMsg = &TxM_1;
             can_handle->pRxMsg = &RxM_1;
 
@@ -169,9 +172,11 @@ extern "C" {
             sFilterConfig_1.BankNumber              = 0x00;
 
             HAL_CAN_ConfigFilter(can_handle, &sFilterConfig_1);
+#endif // HCAN1
         }
         else if (can_handle->Instance == CAN2)
         {
+#ifdef HCAN2
             can_handle->pTxMsg = &TxM_2;
             can_handle->pRxMsg = &RxM_2;
 
@@ -187,6 +192,9 @@ extern "C" {
             sFilterConfig_2.BankNumber              = 14;
 
             HAL_CAN_ConfigFilter(can_handle, &sFilterConfig_2);
+                        
+#endif // HCAN2
+
         }
 
     }
@@ -197,6 +205,7 @@ extern "C" {
 
         if (can_handle->Instance == CAN1)
         {
+#ifdef HCAN1
             can_handle->pTxMsg = &TxM_1;
             can_handle->pRxMsg = &RxM_1;
 
@@ -211,10 +220,14 @@ extern "C" {
             sFilterConfig_1.FilterActivation        = ENABLE;
             sFilterConfig_1.BankNumber              = 0x00;
 
-            HAL_CAN_ConfigFilter(can_handle, &sFilterConfig_1);
+            HAL_CAN_ConfigFilter(can_handle, &sFilterConfig_1);                
+#endif // HCAN1
+
         }
         else if (can_handle->Instance == CAN2)
         {
+
+#ifdef HCAN2
             can_handle->pTxMsg = &TxM_2;
             can_handle->pRxMsg = &RxM_2;
 
@@ -230,23 +243,14 @@ extern "C" {
             sFilterConfig_2.BankNumber              = 14;
 
             HAL_CAN_ConfigFilter(can_handle, &sFilterConfig_2);
+                        
+#endif // HCAN2
         }
 
     }
 
     void can_hal_tx_msg(CAN_HandleTypeDef* can_handle, sCircularBuffer *buffer)
     {
-    /*
-        can_handle->pTxMsg->StdId = id;
-        can_handle->pTxMsg->RTR = CAN_RTR_DATA;
-        can_handle->pTxMsg->IDE = CAN_ID_STD;
-        can_handle->pTxMsg->DLC = dlc;
-
-        for (int i = 0; i < dlc; i++)
-        {
-            can_handle->pTxMsg->Data[i] = data[i];
-        }
-        */
         can_message_s tmp_msg;
 
         if ((can_handle->State == HAL_CAN_STATE_BUSY_RX0) || (can_handle->State ==  HAL_CAN_STATE_BUSY_RX1) || (can_handle->State == HAL_CAN_STATE_BUSY_RX0_RX1))
@@ -299,7 +303,7 @@ extern "C" {
     }
 //****************************************Interrupts Handler*******************************// 
 #ifdef HCAN1
-    void CAN1_RX0_IRQHandler(void)
+    NOS_ISR(CAN1_RX0_IRQHandler)
     {
         HAL_CAN_IRQHandler(&hcan1);
         CAN1_RX_Handler(&hcan1);
@@ -308,7 +312,7 @@ extern "C" {
 #endif // HCAN1
 
 #ifdef HCAN2
-    void CAN2_RX0_IRQHandler(void)
+    NOS_ISR(CAN2_RX0_IRQHandler)
     {
         HAL_CAN_IRQHandler(&hcan2);
         CAN2_RX_Handler(&hcan2);

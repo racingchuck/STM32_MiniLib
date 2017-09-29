@@ -14,7 +14,8 @@ extern "C" {
 //****************************************INCLUDE******************************************// 
 #include <stm32f4xx_hal.h>
 //****************************************DEFINES******************************************//
-
+#define HCAN1
+#define HCAN2
     struct sCircularBufferCAN;
 // CAN RX Buffer size
 #define CAN_RX_BUFF_SIZE 32
@@ -63,7 +64,6 @@ extern "C" {
         uint8_t DLC;
         uint8_t Data[8];
         uint8_t IDType;
-        uint8_t Lane;
     } can_message_s;
 
 //****************************************Global Constants*********************************// 

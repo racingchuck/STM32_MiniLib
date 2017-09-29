@@ -15,8 +15,8 @@ Creation date : 05/04/2017
 #ifdef __cplusplus
 extern "C" {
 #endif
-//****************************************DEFINES******************************************// 
-
+//****************************************DEFINES******************************************//
+#define HUART2
 #define RX_BUFF_SIZE 32
 // UART Configuration table
 //				    Name            Tx Port         Tx Pin          Rx Port         Rx Pin          Alt func            Instance

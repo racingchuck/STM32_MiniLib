@@ -8,12 +8,13 @@ Creation date : 05/04/2017
 
 //****************************************INCLUDE******************************************// 
 #include "uart.h"
+#include "nOS.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 //****************************************DEFINES******************************************// 
-#define HUART1
+
 //****************************************Global Constants*********************************// 
     const uart_periph UART_PERIPHS[NB_OF_UART_PERIPH_ENTRY] =
     {
@@ -192,7 +193,7 @@ extern "C" {
 #endif // HUART1
 
 #ifdef HUART2
-    void USART2_IRQHandler(void)
+    NOS_ISR(USART2_IRQHandler)
     {
         HAL_UART_IRQHandler(&huart2);
         HAL_UART_Receive_IT(&huart2, (uint8_t *)receiveBuffer2, RX_BUFF_SIZE);
@@ -200,7 +201,7 @@ extern "C" {
 #endif // HUART2
 
 #ifdef HUART3
-    void USART3_IRQHandler(void)
+    NOS_ISR(USART3_IRQHandler)
     {
         HAL_UART_IRQHandler(&huart3);
         HAL_UART_Receive_IT(&huart3, (uint8_t *)receiveBuffer3, RX_BUFF_SIZE);
