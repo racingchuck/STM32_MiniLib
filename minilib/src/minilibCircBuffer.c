@@ -7,7 +7,7 @@ Creation date : 07/04/2017
 ****************************************/
 
 //****************************************INCLUDE******************************************// 
-#include "circbuffer.h"
+#include "minilibCircBuffer.h"
 
 #ifdef __cplusplus
 extern "C" {

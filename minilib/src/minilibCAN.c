@@ -1,14 +1,14 @@
 /****************************************
 
-File name     : can_hal.c
+File name     : minilibCAN.c
 Author        : Charles Ratelle
 Creation date : 07/08/2017
 
 ****************************************/
 
 //****************************************INCLUDE******************************************// 
-#include "can_hal.h"
-#include "circbuffer.h"
+#include "minilibCAN.h"
+#include "minilibCircBuffer.h"
 #include "nOS.h"
 
 #ifdef __cplusplus
@@ -26,33 +26,30 @@ extern "C" {
 //****************************************Global Variables*********************************// 
     static uint32_t HAL_RCC_CAN1_CLK_ENABLED = 0;
 
-#ifdef HCAN1
-    extern CAN_HandleTypeDef hcan1;
+
     CanTxMsgTypeDef            TxM_1;
     CanRxMsgTypeDef            RxM_1;
     CAN_FilterConfTypeDef      sFilterConfig_1;
-#endif // HCAN1
 
-#ifdef HCAN2
-    extern CAN_HandleTypeDef hcan2;
+
+    CAN_HandleTypeDef hcan2;
     CanTxMsgTypeDef            TxM_2;
     CanRxMsgTypeDef            RxM_2;
     CAN_FilterConfTypeDef      sFilterConfig_2;
-#endif // HCAN2
 
     static volatile uint8_t CAN1_Com_cplt = 1;
     static volatile uint8_t CAN2_Com_cplt = 1;
 
 //****************************************Function Prototypes******************************// 
-    void can_hal_init_pin(GPIO_TypeDef* GPIOx, uint16_t gpio_pin, uint8_t gpio_af);
-    void can_hal_init_periph(CAN_HandleTypeDef* can_handle);
-    void can_hal_set_interrupt(CAN_HandleTypeDef* can_handle);
+    void minilib_CAN_InitPin(GPIO_TypeDef* GPIOx, uint16_t gpio_pin, uint8_t gpio_af);
+    void minilib_CAN_InitPeriph(CAN_HandleTypeDef* can_handle);
+    void minilib_CAN_SetInterrupt(CAN_HandleTypeDef* can_handle);
 
     __weak void CAN1_RX_Handler(CAN_HandleTypeDef* can_handle);
     __weak void CAN2_RX_Handler(CAN_HandleTypeDef* can_handle);
 
 //****************************************Local Function***********************************// 
-    void can_hal_init_pin(GPIO_TypeDef* GPIOx, uint16_t gpio_pin, uint8_t gpio_af)
+    void minilib_CAN_InitPin(GPIO_TypeDef* GPIOx, uint16_t gpio_pin, uint8_t gpio_af)
     {
         GPIO_InitTypeDef gpioInit_s;
 
@@ -88,7 +85,7 @@ extern "C" {
         
     }
 
-    void can_hal_init_periph(CAN_HandleTypeDef* can_handle)
+    void minilib_CAN_InitPeriph(CAN_HandleTypeDef* can_handle)
     {
         if (can_handle->Instance == CAN1)
         {
@@ -112,7 +109,7 @@ extern "C" {
         }
     }
 
-    void can_hal_set_interrupt(CAN_HandleTypeDef* can_handle)
+    void minilib_CAN_SetInterrupt(CAN_HandleTypeDef* can_handle)
     {
         if (can_handle->Instance == CAN1)
         {
@@ -127,36 +124,38 @@ extern "C" {
     }
 
 //****************************************Global Function**********************************// 
-    void can_hal_init(can_periph can, CAN_HandleTypeDef* can_handle)
+    void minilib_CAN_init(can_periph can)
     {
+        CAN_HandleTypeDef* hcan;
 
-        can_handle->Instance = can.Instance;
-        can_hal_init_periph(can_handle);
+        if (can.Instance == CAN1)
+            hcan = &hcan1;
+        else
+            hcan = &hcan2;
 
-        can_hal_init_pin(can.TX_Port, can.TX_Pin, can.Alt_Func);
-        can_hal_init_pin(can.RX_Port, can.RX_Pin, can.Alt_Func);
+        hcan->Instance = can.Instance;
+        minilib_CAN_InitPeriph(hcan);
 
-        can_hal_set_interrupt(can_handle);
+        minilib_CAN_InitPin(can.TX_Port, can.TX_Pin, can.Alt_Func);
+        minilib_CAN_InitPin(can.RX_Port, can.RX_Pin, can.Alt_Func);
 
-        can_hal_set_baudrate(can_handle, CAN_1000KBPS);
+        minilib_CAN_SetInterrupt(hcan);
 
-        if (HAL_CAN_Init(can_handle) != HAL_OK)
+        minilib_CAN_SetBaudrate(hcan, CAN_1000KBPS);
+
+        if (HAL_CAN_Init(hcan) != HAL_OK)
         {
             while (1)
                 ;
         }
     }
 
-    void can_hal_set_filter_id(CAN_HandleTypeDef* can_handle, uint16_t id)
+    void minilib_CAN_SetFilterId(CAN_HandleTypeDef* can_handle, uint16_t id)
     {
     
 
         if (can_handle->Instance == CAN1)
         {
-#ifdef HCAN1
-            
-
-
             can_handle->pTxMsg = &TxM_1;
             can_handle->pRxMsg = &RxM_1;
 
@@ -172,11 +171,9 @@ extern "C" {
             sFilterConfig_1.BankNumber              = 0x00;
 
             HAL_CAN_ConfigFilter(can_handle, &sFilterConfig_1);
-#endif // HCAN1
         }
         else if (can_handle->Instance == CAN2)
         {
-#ifdef HCAN2
             can_handle->pTxMsg = &TxM_2;
             can_handle->pRxMsg = &RxM_2;
 
@@ -192,20 +189,14 @@ extern "C" {
             sFilterConfig_2.BankNumber              = 14;
 
             HAL_CAN_ConfigFilter(can_handle, &sFilterConfig_2);
-                        
-#endif // HCAN2
-
         }
 
     }
 
-    void can_hal_set_filter_mask(CAN_HandleTypeDef* can_handle, uint32_t filter_mask, uint32_t filter_id)
+    void minilib_CAN_SetFilterMask(CAN_HandleTypeDef* can_handle, uint32_t filter_mask, uint32_t filter_id)
     {
-    
-
         if (can_handle->Instance == CAN1)
         {
-#ifdef HCAN1
             can_handle->pTxMsg = &TxM_1;
             can_handle->pRxMsg = &RxM_1;
 
@@ -221,13 +212,9 @@ extern "C" {
             sFilterConfig_1.BankNumber              = 0x00;
 
             HAL_CAN_ConfigFilter(can_handle, &sFilterConfig_1);                
-#endif // HCAN1
-
         }
         else if (can_handle->Instance == CAN2)
         {
-
-#ifdef HCAN2
             can_handle->pTxMsg = &TxM_2;
             can_handle->pRxMsg = &RxM_2;
 
@@ -243,13 +230,11 @@ extern "C" {
             sFilterConfig_2.BankNumber              = 14;
 
             HAL_CAN_ConfigFilter(can_handle, &sFilterConfig_2);
-                        
-#endif // HCAN2
         }
 
     }
 
-    void can_hal_tx_msg(CAN_HandleTypeDef* can_handle, sCircularBuffer *buffer)
+    void minilib_CAN_TxMsg(CAN_HandleTypeDef* can_handle, sCircularBuffer *buffer)
     {
         can_message_s tmp_msg;
 
@@ -282,7 +267,7 @@ extern "C" {
         }
     }
 
-    void can_hal_set_baudrate(CAN_HandleTypeDef* can_handle, uint32_t baudrate)
+    void minilib_CAN_SetBaudrate(CAN_HandleTypeDef* can_handle, uint32_t baudrate)
     {
         can_handle->Init.Mode = CAN_MODE_NORMAL;
         can_handle->Init.Prescaler = baudrate;

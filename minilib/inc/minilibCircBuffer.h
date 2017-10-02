@@ -1,17 +1,17 @@
 /****************************************
 
-File name     : circbuffer.h
+File name     : minilibCircBuffer.h
 Author        : Charles Ratelle
 Creation date : 07/04/2017
 
 ****************************************/
 
-#ifndef __CIRCBUFFER_H
-#define __CIRCBUFFER_H
+#ifndef __MINILIBCIRCBUFFER_H
+#define __MINILIBCIRCBUFFER_H
 
 //****************************************INCLUDE******************************************// 
 #include <stm32f4xx_hal.h>
-#include "can_hal.h"
+#include "minilibCAN.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -54,4 +54,4 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif // __CIRCBUFFER_H
+#endif // __MINILIBCIRCBUFFER_H

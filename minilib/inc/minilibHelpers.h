@@ -1,13 +1,13 @@
 /****************************************
 
-File name     : circbuffer.h
+File name     : minilibHelpers.h
 Author        : Charles Ratelle
 Creation date : 14/07/2017
 
 ****************************************/
 
-#ifndef __HELPERS_H
-#define __HELPERS_H
+#ifndef __MINILIBHELPERS_H
+#define __MINILIBHELPERS_H
 
 //****************************************INCLUDE******************************************// 
 #include <stm32f4xx_hal.h>
@@ -25,5 +25,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif // __HELPERS_H
+#endif // __MINILIBHELPERS_H
 

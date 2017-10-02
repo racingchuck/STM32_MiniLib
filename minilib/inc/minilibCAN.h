@@ -1,12 +1,12 @@
 /****************************************
 
-File name     : can_hal.h
+File name     : minilibCAN.h
 Author        : Charles Ratelle
 Creation date : 07/08/2017
 
 ****************************************/
-#ifndef __CAN_HAL_H
-#define __CAN_HAL_H
+#ifndef __MINILIBCAN_H
+#define __MINILIBCAN_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,9 +14,8 @@ extern "C" {
 //****************************************INCLUDE******************************************// 
 #include <stm32f4xx_hal.h>
 //****************************************DEFINES******************************************//
-#define HCAN1
-#define HCAN2
-    struct sCircularBufferCAN;
+
+struct sCircularBufferCAN;
 // CAN RX Buffer size
 #define CAN_RX_BUFF_SIZE 32
 #define CAN_TX_BUFF_SIZE 16
@@ -30,7 +29,7 @@ extern "C" {
 #define CAN_62KBPS 32
 
 // CAN Configuration table
-//				    Name          Tx Port   Tx Pin          Rx Port   Rx Pin          Alt func       Instance
+//				    Name          Tx Port   Tx Pin          Rx Port   Rx Pin          Alt func       Instance 
 #define X_CAN_CROSSTABLE 	\
 		X_XTABLE(   CAN1_1,       GPIOB,    GPIO_PIN_9,     GPIOB,    GPIO_PIN_8,     GPIO_AF9_CAN1, CAN1) \
         X_XTABLE(   CAN1_2,       GPIOA,    GPIO_PIN_12,    GPIOA,    GPIO_PIN_11,    GPIO_AF9_CAN1, CAN1) \
@@ -69,16 +68,16 @@ extern "C" {
 //****************************************Global Constants*********************************// 
     extern const can_periph CAN_PERIPHS[NB_OF_CAN_PERIPH_ENTRY];
 //****************************************Global Variables*********************************// 
-
+    CAN_HandleTypeDef hcan1;
+    CAN_HandleTypeDef hcan2;
 //****************************************Global Function Prototype************************// 
-    void can_hal_init(can_periph can, CAN_HandleTypeDef* can_handle);
-    void can_hal_set_filter_id(CAN_HandleTypeDef* can_handle, uint16_t id);
-    void can_hal_set_filter_mask(CAN_HandleTypeDef* can_handle, uint32_t filter_mask, uint32_t filter_id);
-    void can_hal_tx_msg(CAN_HandleTypeDef* can_handle, struct sCircularBufferCAN *buffer);
-    //void can_hal_tx_msg(CAN_HandleTypeDef* can_handle, uint32_t id, uint8_t data[], uint8_t dlc);
-    void can_hal_set_baudrate(CAN_HandleTypeDef* can_handle, uint32_t baudrate);
+    void minilib_CAN_Init(can_periph can);
+    void minilib_SetFilterId(CAN_HandleTypeDef* can_handle, uint16_t id);
+    void minilib_CAN_SetFilterMask(CAN_HandleTypeDef* can_handle, uint32_t filter_mask, uint32_t filter_id);
+    void minilib_CAN_TxMsg(CAN_HandleTypeDef* can_handle, struct sCircularBufferCAN *buffer);
+    void minilib_CAN_SetBaudrate(CAN_HandleTypeDef* can_handle, uint32_t baudrate);
 
 #ifdef __cplusplus
 }
 #endif
-#endif // __CAN_HAL_H
+#endif // __MINILIBCAN_H

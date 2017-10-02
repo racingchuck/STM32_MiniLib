@@ -1,17 +1,18 @@
 /****************************************
 
-File name     : uart.h
+File name     : minilibUART.h
 Author        : Charles Ratelle
 Creation date : 05/04/2017
 
 ****************************************/
 
-#ifndef __UART_H
-#define __UART_H
+#ifndef __MINILIBUART_H
+#define __MINILIBUART_H
 //****************************************INCLUDE******************************************// 
 #include <stm32f4xx_hal.h>
 #include <stdbool.h>
-#include "helpers.h"
+#include "minilibHelpers.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,4 +63,4 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif // __UART_H
+#endif // __MINILIBUART_H
