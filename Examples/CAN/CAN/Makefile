@@ -525,5 +525,5 @@ $(BINARYDIR)/stm32f4xx_ll_utils.o : $(BSP_ROOT)/STM32F4xxxx/STM32F4xx_HAL_Driver
 	$(CC) $(CFLAGS) -c $< -o $@ -MD -MF $(@:.o=.dep)
 
 $(BINARYDIR)/libminilib.a : ../../../minilib/$(BINARYDIR)/libminilib.a
-	$(CP) ../../../minilib/$(BINARYDIR)/libminilib.a $(BINARYDIR)/libminilib.a
+	$(CC) ../../../minilib/$(BINARYDIR)/libminilib.a $(BINARYDIR)/libminilib.a
 

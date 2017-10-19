@@ -124,7 +124,7 @@ extern "C" {
     }
 
 //****************************************Global Function**********************************// 
-    void minilib_CAN_init(can_periph can)
+    void minilib_CAN_Init(can_periph can)
     {
         CAN_HandleTypeDef* hcan;
 

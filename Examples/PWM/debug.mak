@@ -6,9 +6,9 @@ BINARYDIR := Debug
 
 #Additional flags
 PREPROCESSOR_MACROS := DEBUG=1
-INCLUDE_DIRS := ../../../minilib/inc
-LIBRARY_DIRS := 
-LIBRARY_NAMES := 
+INCLUDE_DIRS := ../../minilib/inc
+LIBRARY_DIRS := ../../minilib/Debug
+LIBRARY_NAMES := minilib
 ADDITIONAL_LINKER_INPUTS := 
 MACOS_FRAMEWORKS := 
 LINUX_PACKAGES := 
