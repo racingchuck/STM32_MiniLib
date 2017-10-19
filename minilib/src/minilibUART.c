@@ -185,7 +185,7 @@ extern "C" {
 //****************************************Interrupts Handler*******************************// 
 
 #ifdef HUART1
-    void USART1_IRQHandler(void)
+    NOS_ISR(USART1_IRQHandler)
     {
         HAL_UART_IRQHandler(&huart1);
         HAL_UART_Receive_IT(&huart1, (uint8_t *)receiveBuffer1, RX_BUFF_SIZE);

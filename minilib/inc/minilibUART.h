@@ -18,7 +18,7 @@ extern "C" {
 #endif
 //****************************************DEFINES******************************************//
 #define HUART2
-#define RX_BUFF_SIZE 32
+#define RX_BUFF_SIZE 1
 // UART Configuration table
 //				    Name            Tx Port         Tx Pin          Rx Port         Rx Pin          Alt func            Instance
 #define X_UART_CROSSTABLE 	\

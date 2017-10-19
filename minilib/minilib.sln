@@ -11,6 +11,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PWM", "..\Examples\PWM\PWM.
 		{ADAECB34-12EB-4300-996C-332C4DA16CC2} = {ADAECB34-12EB-4300-996C-332C4DA16CC2}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UART", "..\Examples\UART\UART.vcxproj", "{D59BAE5E-5451-4C8F-9426-237758086082}"
+	ProjectSection(ProjectDependencies) = postProject
+		{ADAECB34-12EB-4300-996C-332C4DA16CC2} = {ADAECB34-12EB-4300-996C-332C4DA16CC2}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -37,6 +42,12 @@ Global
 		{1D77EBCD-178A-4FCF-B334-BD5E7550DEB0}.Release|x64.ActiveCfg = Release|Win32
 		{1D77EBCD-178A-4FCF-B334-BD5E7550DEB0}.Release|x86.ActiveCfg = Release|Win32
 		{1D77EBCD-178A-4FCF-B334-BD5E7550DEB0}.Release|x86.Build.0 = Release|Win32
+		{D59BAE5E-5451-4C8F-9426-237758086082}.Debug|x64.ActiveCfg = Debug|Win32
+		{D59BAE5E-5451-4C8F-9426-237758086082}.Debug|x86.ActiveCfg = Debug|Win32
+		{D59BAE5E-5451-4C8F-9426-237758086082}.Debug|x86.Build.0 = Debug|Win32
+		{D59BAE5E-5451-4C8F-9426-237758086082}.Release|x64.ActiveCfg = Release|Win32
+		{D59BAE5E-5451-4C8F-9426-237758086082}.Release|x86.ActiveCfg = Release|Win32
+		{D59BAE5E-5451-4C8F-9426-237758086082}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

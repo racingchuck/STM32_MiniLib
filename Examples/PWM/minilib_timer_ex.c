@@ -6,7 +6,6 @@
 extern "C"
 #endif
 
-TIM_HandleTypeDef htim1;
 extern uint32_t tim3_pwm_ic_value[4];
 static int timerValue;
 static uint32_t timerICValue;
